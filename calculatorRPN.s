@@ -1,4 +1,5 @@
 .text
+b start @pula direto para o inicio do codigo
 .equ SWI_CheckBlue, 0x203 @faz a checagem se algum botao azul foi precionado
 .equ SWI_CLEAR_DISPLAY,0x206 @limpar lcd
 .equ SWI_DRAW_CHAR, 0x207 @printar um char
@@ -24,26 +25,28 @@
 .equ Button_13, 1<<13 @botoes(13)
 .equ Button_14, 1<<14 @botoes(14)
 .equ Button_15, 1<<15 @botoes(15)
-
 array: .space 24 @ array(24bytes para armazenar 6 numeros)
-eoa:
-        .align
+eoa: @indica o fim do array
+.align
 
 start:
-swi SWI_CLEAR_DISPLAY
+swi SWI_CLEAR_DISPLAY @ limpa a tela ao iniciar
 mov r8,#10
-ldr r13= array
-ldr r14= eoa
+ldr r3,= array
+ldr r13,= eoa
+mov r14,#0
+b Teclado
+
 Teclado:
 mov r0,#0
-add r15,r15,#1
-BB1:
+add r14,r14,#1 
+Check_bt:
     swi SWI_CheckBlue @get button press into R0
     cmp r0,#0
-beq BB1 @ if zero, no button pressed
+beq Check_bt @ if zero, no button pressed
 add r5,r5,#1   @column counter
-cmp r15,#7
-b Erro
+cmp r14,#7
+beq Erro
 mov r9,r6
 cmp r0,#Button_00
 beq ZERO
@@ -80,7 +83,7 @@ beq FIFTEEN
 
 
 swi SWI_CheckBlack
-cmp r0,0x02
+cmp r0,#0x02
 beq Clear
 
 
@@ -190,7 +193,7 @@ b operation
 TWELVE:
 mov r0,r5
 mov r1,#4
-mov r2,#"="
+mov r2,#'='
 swi SWI_DRAW_CHAR
 b Armazenar
 
@@ -230,22 +233,32 @@ beq rest
 cmp r4,#'%'
 beq quoc
 
+soma:
+b Armazenar
+subt:
+b Armazenar
+mult:
+b Armazenar
+rest:
+b Armazenar
+quoc:
+b Armazenar
 
 Clear:
-SWI_CLEAR_DISPLAY
+swi SWI_CLEAR_DISPLAY
 mov r6,#0
 mov r7,#0
-mov r15,#0
-ldr r13= array
-looping:    strb r6,[r13],#4
-            cmp  r13,r14
+mov r14,#0
+ldr r3,=array
+looping:    strb r6,[r3],#4
+            cmp  r3,r13
             bne   looping 
 beq   start
 
 
-Armazenar :
-strb r6,[r13],#4 @ armazena o valor no vetor
-mov r15,#0
+Armazenar:
+strb r6,[r3],#4 @ armazena o valor no vetor
+mov r14,#0
 b Teclado
 
 
