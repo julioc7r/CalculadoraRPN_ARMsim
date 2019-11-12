@@ -49,37 +49,37 @@ cmp r14,#7
 beq Erro
 mov r9,r6
 cmp r0,#Button_00
-beq ZERO
+beq ZERO        @ numero 1
 cmp r0,#Button_01
-beq ONE
+beq ONE         @ numero 2
 cmp r0,#Button_02
-beq TWO
+beq TWO         @ numero 3
 cmp r0,#Button_03
-beq THREE
+beq THREE       @ soma
 cmp r0,#Button_04
-beq FOUR
+beq FOUR        @ numero 4
 cmp r0,#Button_05
-beq FIVE
+beq FIVE        @ numero 5
 cmp r0,#Button_06
-beq SIX
+beq SIX         @ numero 6
 cmp r0,#Button_07
-beq SEVEN
+beq SEVEN       @ subtracao
 cmp r0,#Button_08
-beq EIGHT
+beq EIGHT       @ numero 7
 cmp r0,#Button_09
-beq NINE
+beq NINE        @ numero 8
 cmp r0,#Button_10
-beq TEN
+beq TEN         @ numero 9
 cmp r0,#Button_11
-beq ELEVEN
+beq ELEVEN      @ multiplicacao
 cmp r0,#Button_12
-beq TWELVE
+beq TWELVE      @ igual
 cmp r0,#Button_13
-beq THIRTEEN
+beq THIRTEEN    @ numero 0
 cmp r0,#Button_14
-beq FOURTEEN
+beq FOURTEEN    @ resto de divisao
 cmp r0,#Button_15
-beq FIFTEEN
+beq FIFTEEN     @ divisao
 
 
 swi SWI_CheckBlack
