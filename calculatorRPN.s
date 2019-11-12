@@ -37,14 +37,28 @@ ldr r13,= eoa
 mov r14,#0
 b Teclado
 
+@ r0 -> recebe o botao apertado
+@ r1 ->
+@ r2 -> recebe o numero/operando representado pelo botao
+@ r3 -> recebe o vetor
+@ r4 ->
+@ r5 ->
+@ r6 ->
+@ r7 ->
+@ r8 ->
+@ r9 ->
+@ r10 ->
+@ r11 ->
+@ r13 -> recebe o fim do vetor
+
 Teclado:
 mov r0,#0
 add r14,r14,#1 
 Check_bt:
-    swi SWI_CheckBlue @get button press into R0
+    swi SWI_CheckBlue   @get button press into R0
     cmp r0,#0
-beq Check_bt @ if zero, no button pressed
-add r5,r5,#1   @column counter
+beq Check_bt    @ if zero, no button pressed
+add r5,r5,#1    @column counter
 cmp r14,#7
 beq Erro
 mov r9,r6
