@@ -87,7 +87,7 @@ cmp r0,#0x02
 beq Clear
 
 
-ZERO:
+ZERO: @ numero 1
 mov r0,r5
 mov r1,#4
 mov r2,#1
@@ -97,7 +97,7 @@ add r6,r6,#1
 b Teclado
 
 
-ONE:
+ONE: @ numero 2
 mov r0,r5
 mov r1,#4
 mov r2,#2
@@ -106,7 +106,7 @@ MUL r6,r9,r8
 add r6,r6,#2
 b Teclado
 
-TWO:
+TWO: @ numero 3
 mov r0,r5
 mov r1,#4
 mov r2,#3
@@ -115,14 +115,14 @@ MUL r6,r9,r8
 add r6,r6,#3
 b Teclado
 
-THREE:
+THREE: @ operador soma
 mov r0,r5
 mov r1,#4
 mov r2,#'+'
 swi SWI_DRAW_CHAR
 b operation
 
-FOUR:
+FOUR: @ numero 4
 mov r0,r5
 mov r1,#4
 mov r2,#4
@@ -131,7 +131,7 @@ MUL r6,r9,r8
 add r6,r6,#4
 b Teclado
 
-FIVE:
+FIVE: @ numero 5
 mov r0,r5
 mov r1,#4
 mov r2,#5
@@ -140,7 +140,7 @@ MUL r6,r9,r8
 add r6,r6,#5
 b Teclado
 
-SIX:
+SIX: @ numero 6
 mov r0,r5
 mov r1,#4
 mov r2,#6
@@ -149,14 +149,14 @@ MUL r6,r9,r8
 add r6,r6,#6
 b Teclado
 
-SEVEN:
+SEVEN: @ operador subtracao
 mov r0,r5
 mov r1,#4
 mov r2,#'-'
 swi SWI_DRAW_CHAR
 b operation
 
-EIGHT:
+EIGHT: @ numero 7
 mov r0,r5
 mov r1,#4
 mov r2,#7
@@ -165,7 +165,7 @@ MUL r6,r9,r8
 add r6,r6,#7
 b Teclado
 
-NINE:
+NINE: @ numero 8
 mov r0,r5
 mov r1,#4
 mov r2,#8
@@ -174,7 +174,7 @@ MUL r6,r9,r8
 add r6,r6,#8
 b Teclado
 
-TEN:
+TEN: @ numero 9
 mov r0,r5
 mov r1,#4
 mov r2,#9
@@ -183,21 +183,21 @@ MUL r6,r9,r8
 add r6,r6,#9
 b Teclado
 
-ELEVEN:
+ELEVEN: @ operador multiplicacao
 mov r0,r5
 mov r1,#4
 mov r2,#'*'
 swi SWI_DRAW_CHAR
 b operation
 
-TWELVE:
+TWELVE: @ operador igual
 mov r0,r5
 mov r1,#4
 mov r2,#'='
 swi SWI_DRAW_CHAR
 b Armazenar
 
-THIRTEEN:
+THIRTEEN: @ numero 0
 mov r0,r5
 mov r1,#4
 mov r2,#0
@@ -206,15 +206,15 @@ MUL r6,r9,r8
 add r6,r6,#0
 b Teclado
 
-FOURTEEN:
+FOURTEEN: @ operador resto de divisao
 mov r0,r5
 mov r1,#4
 mov r2,#'%'
 swi SWI_DRAW_CHAR
 b operation
 
-
-FIFTEEN:
+ 
+FIFTEEN: @ operador divisao
 mov r0,r5
 mov r1,#4
 mov r2,#'/'
