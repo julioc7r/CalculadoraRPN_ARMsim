@@ -39,12 +39,12 @@ b Teclado
 
 @ r0 -> recebe o botao apertado
 @ r1 ->
-@ r2 -> recebe o numero/operando representado pelo botao
+@ r2 -> recebe o numero/operando representado pelo botao| recebe o resultado da operacao
 @ r3 -> recebe o vetor
 @ r4 ->
 @ r5 ->
 @ r6 ->
-@ r7 ->
+@ r7 -> recebe o valor do vetor para fazer operação
 @ r8 ->
 @ r9 ->
 @ r10 ->
@@ -105,6 +105,7 @@ ZERO: @ numero 1
 mov r0,r5
 mov r1,#4
 mov r2,#1
+@add r3,#1 somar o inicio do vetor??
 swi SWI_DRAW_INT
 MUL r6,r9,r8
 add r6,r6,#1
@@ -250,12 +251,17 @@ beq quoc
 soma: ldr r7,[r3],#-4
     mov r0,r5
     mov r1,#4
-    add  r6,r7,r6
+    add r6,r7,r6
     mov r2,r6
     swi SWI_DRAW_INT
 b Armazenar
 
-subt:
+subt: ldr r7,[r3],#-4
+    mov r0,r5
+    mov r1,#4
+    sub r6,r7,r6
+    mov r2,r6
+    swi SWI_DRAW_INT
 b Armazenar
 mult:
 b Armazenar
