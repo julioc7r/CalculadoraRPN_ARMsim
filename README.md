@@ -1,7 +1,7 @@
 ## CalculadoraRPN_ARMsim
 > calculadora RPN (notação polonesa inversa, ou posfixa)
 
-### teclado emulado a partir do EmbestBoard do armsim
+### Teclado emulado a partir do EmbestBoard do armsim
 
 
 |calculadora||||
