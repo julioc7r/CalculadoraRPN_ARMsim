@@ -233,8 +233,14 @@ beq rest
 cmp r4,#'%'
 beq quoc
 
-soma:
+soma: ldr r7,[r3],#-4
+    mov r0,r5
+    mov r1,#4
+    add  r6,r7,r6
+    mov r2,r6
+    swi SWI_DRAW_INT
 b Armazenar
+
 subt:
 b Armazenar
 mult:
@@ -263,6 +269,7 @@ b Teclado
 
 
 Erro:
+    swi SWI_CLEAR_DISPLAY
     mov r0,#2 @ column number
     mov r1,#4 @ row number
     ldr r2,=error @ pointer to string
