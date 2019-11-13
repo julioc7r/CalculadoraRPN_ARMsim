@@ -12,4 +12,4 @@
 | enter | 0 | / | % |
 
 
-<span style="color:blue">some *This is Blue italic.* text</span>
+*Trabalho final da materia de Arquitetura e Organização de computadores UTFPR-2019/2.*
