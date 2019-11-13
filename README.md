@@ -4,7 +4,7 @@
 ### Teclado emulado a partir do EmbestBoard do armsim
 
 
-|calculadora||||
+|calculadora|RPN|ARM|SIM|
 |-------|---|---|---|
 | 1     | 2 | 3 | + |
 | 4     | 5 | 6 | - |
@@ -12,4 +12,3 @@
 | enter | 0 | / | % |
 
 
-# TA SAINDO DA JAULA O MONSTRO
