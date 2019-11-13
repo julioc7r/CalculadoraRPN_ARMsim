@@ -236,6 +236,7 @@ mov r2,#'/'
 swi SWI_DRAW_CHAR
 b operation
 
+
 operation:
 cmp r4,#'+'
 beq soma
@@ -248,6 +249,7 @@ beq rest
 cmp r4,#'%'
 beq quoc
 
+
 soma: ldr r7,[r3],#-4
     mov r0,r5
     mov r1,#4
@@ -256,6 +258,7 @@ soma: ldr r7,[r3],#-4
     swi SWI_DRAW_INT
 b Armazenar
 
+
 subt: ldr r7,[r3],#-4
     mov r0,r5
     mov r1,#4
@@ -263,8 +266,20 @@ subt: ldr r7,[r3],#-4
     mov r2,r6
     swi SWI_DRAW_INT
 b Armazenar
-mult:
+
+
+mult:ldr r7,[r3],#-4
+subtr:  add r6,r6,r6
+        sub r7,r7,#1
+        cmp r7,#0
+        bne subtr
+    mov r0,r5
+    mov r1,#4
+    mov r2,r6
+    swi SWI_DRAW_INT
 b Armazenar
+
+
 rest:
 b Armazenar
 quoc:
@@ -284,7 +299,8 @@ beq   start
 
 Armazenar:
 strb r6,[r3],#4 @ armazena o valor no vetor
-mov r14,#0
+mov r6,#0  @zera o valor do r6.
+mov r14,#0 @zera o contador 
 b Teclado
 
 
