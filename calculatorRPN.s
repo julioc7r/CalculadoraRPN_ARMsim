@@ -33,34 +33,32 @@ start:
 swi SWI_CLEAR_DISPLAY @ limpa a tela ao iniciar
 mov r8,#10
 ldr r3,= array
-ldr r13,= eoa
-mov r14,#0
+ldr r4,= eoa
+mov r12,#0 @
 b Teclado
 
-@ r0 -> recebe o botao apertado
+            @##     REGISTRADORES              ##
+@ r0 -> recebe o botao apertado / e tem a função de contador de linhas
 @ r1 ->
 @ r2 -> recebe o numero/operando representado pelo botao| recebe o resultado da operacao
 @ r3 -> recebe o vetor
-@ r4 ->
-@ r5 ->
-@ r6 ->
-@ r7 -> recebe o valor do vetor para fazer operação
-@ r8 ->
-@ r9 ->
+@ r4 -> final do vetor
+@ r5 -> contador
+@ r6 -> operando 1
+@ r7 -> operando 2
+@ r8 -> utilizado para auxiliar na multiplicacao, ao receber um novo numero os numeros antigos sao deslocados para a direita e o ultimo digito recebe o numero digitado
+@ r9 -> 
 @ r10 ->
 @ r11 ->
-@ r13 -> recebe o fim do vetor
+@ r12 ->
 
 Teclado:
 mov r0,#0
-add r14,r14,#1 
-Check_bt:
+Check_bt:  @ faz a checagem se o botao azul foi precionado, caso não tenha sido precionado chama a função para ver se o botão preto foi chamado
     swi SWI_CheckBlue   @get button press into R0
     cmp r0,#0
-beq Check_bt    @ if zero, no button pressed
-add r5,r5,#1    @column counter
-cmp r14,#7
-beq Erro
+beq Check_bt_b   @ caso r0 seja igual a 0 nenhum botão azul foi precionado, chamando assim a função para checar o botao preto
+add r5,r5,#1    @contador de digito da coluna
 mov r9,r6
 cmp r0,#Button_00
 beq ZERO        @ numero 1
@@ -95,21 +93,28 @@ beq FOURTEEN    @ resto de divisao
 cmp r0,#Button_15
 beq FIFTEEN     @ divisao
 
-
+Check_bt_b:
 swi SWI_CheckBlack
+    cmp r0,#0
+beq Check_bt
 cmp r0,#0x02
 beq Clear
 
+MULT: add r2,r9,r9
+      sub r8,r8,#1
+      cmp r8,#0
+      bne MULT
+add r6,r2,r6
+mov r8,#10
+b Teclado
 
 ZERO: @ numero 1
 mov r0,r5
 mov r1,#4
 mov r2,#1
-@add r3,#1 somar o inicio do vetor??
 swi SWI_DRAW_INT
-MUL r6,r9,r8
-add r6,r6,#1
-b Teclado
+mov r6,#1
+b MULT
 
 
 ONE: @ numero 2
@@ -117,18 +122,16 @@ mov r0,r5
 mov r1,#4
 mov r2,#2
 swi SWI_DRAW_INT
-MUL r6,r9,r8
-add r6,r6,#2
-b Teclado
+mov r6,#2
+b MULT
 
 TWO: @ numero 3
 mov r0,r5
 mov r1,#4
 mov r2,#3
 swi SWI_DRAW_INT
-MUL r6,r9,r8
-add r6,r6,#3
-b Teclado
+mov r6,#3
+b MULT
 
 THREE: @ operador soma
 mov r0,r5
@@ -142,27 +145,24 @@ mov r0,r5
 mov r1,#4
 mov r2,#4
 swi SWI_DRAW_INT
-MUL r6,r9,r8
-add r6,r6,#4
-b Teclado
+mov r6,#4
+b MULT
 
 FIVE: @ numero 5
 mov r0,r5
 mov r1,#4
 mov r2,#5
 swi SWI_DRAW_INT
-MUL r6,r9,r8
-add r6,r6,#5
-b Teclado
+mov r6,#5
+b MULT
 
 SIX: @ numero 6
 mov r0,r5
 mov r1,#4
 mov r2,#6
 swi SWI_DRAW_INT
-MUL r6,r9,r8
-add r6,r6,#6
-b Teclado
+mov r6,#6
+b MULT
 
 SEVEN: @ operador subtracao
 mov r0,r5
@@ -176,27 +176,24 @@ mov r0,r5
 mov r1,#4
 mov r2,#7
 swi SWI_DRAW_INT
-MUL r6,r9,r8
-add r6,r6,#7
-b Teclado
+mov r6,#7
+b MULT
 
 NINE: @ numero 8
 mov r0,r5
 mov r1,#4
 mov r2,#8
 swi SWI_DRAW_INT
-MUL r6,r9,r8
-add r6,r6,#8
-b Teclado
+mov r6,#8
+b MULT
 
 TEN: @ numero 9
 mov r0,r5
 mov r1,#4
 mov r2,#9
 swi SWI_DRAW_INT
-MUL r6,r9,r8
-add r6,r6,#9
-b Teclado
+mov r6,#9
+b MULT
 
 ELEVEN: @ operador multiplicacao
 mov r0,r5
@@ -217,9 +214,8 @@ mov r0,r5
 mov r1,#4
 mov r2,#0
 swi SWI_DRAW_INT
-MUL r6,r9,r8
-add r6,r6,#0
-b Teclado
+mov r6,#0
+b MULT
 
 FOURTEEN: @ operador resto de divisao
 mov r0,r5
@@ -238,24 +234,28 @@ b operation
 
 
 operation:
-cmp r4,#'+'
+cmp r2,#'+'
 beq soma
-cmp r4,#'-'
+cmp r2,#'-'
 beq subt
-cmp r4,#'*'
+cmp r2,#'*'
 beq mult
-cmp r4,#'/'
+cmp r2,#'/'
 beq rest
-cmp r4,#'%'
+cmp r2,#'%'
 beq quoc
 
 
-soma: ldr r7,[r3],#-4
+soma: ldr r6,[r3]
+    ldr r7,[r3],#-4
     mov r0,r5
     mov r1,#4
     add r6,r7,r6
     mov r2,r6
     swi SWI_DRAW_INT
+    mov r2,#0
+    strb r2,[r3],#4   @ limpando os elementos da pilha
+    strb r2,[r3],#-4
 b Armazenar
 
 
@@ -268,8 +268,9 @@ subt: ldr r7,[r3],#-4
 b Armazenar
 
 
-mult:ldr r7,[r3],#-4
-subtr:  add r6,r6,r6
+mult:ldr r6,[r3]
+    ldr r7,[r3],#-4
+subtr:  add ,r6,r6
         sub r7,r7,#1
         cmp r7,#0
         bne subtr
@@ -289,19 +290,27 @@ Clear:
 swi SWI_CLEAR_DISPLAY
 mov r6,#0
 mov r7,#0
-mov r14,#0
-ldr r3,=array
-looping:    strb r6,[r3],#4
-            cmp  r3,r13
+ldr r3,=array @ recebe o inicio do array
+looping:    strb r6,[r3],#4  @ percore o vetor mudando todos os valores para 0
+            cmp  r3,r4       @ enquanto o vetor nao chegar ao fim continua o looping
             bne   looping 
 beq   start
 
 
 Armazenar:
+cmp r3,r4
+beq Erro_
 strb r6,[r3],#4 @ armazena o valor no vetor
 mov r6,#0  @zera o valor do r6.
 mov r14,#0 @zera o contador 
 b Teclado
+
+Erro_: 
+    mov r0,#2 @ column number
+    mov r1,#5 @ row number
+    ldr r2,=error_ @ pointer to string
+    swi SWI_DRAW_STRING @ draw to the LCD screen
+    b start
 
 
 Erro:
@@ -314,5 +323,5 @@ Erro:
 
 .data
 error: .asciz "numero digitado maior que o suportado"
-
+error_ . asciz "pilha ja esta cheia/digite um openrando ou precione botão preto direito para sair"
 .end
