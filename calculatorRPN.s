@@ -35,6 +35,7 @@ mov r8,#10
 ldr r3,= array
 ldr r4,= eoa
 mov r12,#0 @
+mov r9,#0
 b Teclado
 
             @##     REGISTRADORES              ##
@@ -47,7 +48,7 @@ b Teclado
 @ r6 -> operando 1
 @ r7 -> operando 2
 @ r8 -> utilizado para auxiliar na multiplicacao, ao receber um novo numero os numeros antigos sao deslocados para a direita e o ultimo digito recebe o numero digitado
-@ r9 -> 
+@ r9 -> variavel auxiliar ultilizada para guardar algarismos antes de alguma adição de mais numeros
 @ r10 ->
 @ r11 ->
 @ r12 ->
@@ -100,11 +101,12 @@ beq Check_bt
 cmp r0,#0x02
 beq Clear
 
-MULT: add r2,r9,r9
+MULT:add r2,r2,r9
       sub r8,r8,#1
       cmp r8,#0
       bne MULT
-add r6,r2,r6
+add r6,r6,r2
+mov r2,#0
 mov r8,#10
 b Teclado
 
@@ -112,7 +114,8 @@ ZERO: @ numero 1
 mov r0,r5
 mov r1,#4
 mov r2,#1
-swi SWI_DRAW_INT
+swi SWI_DRAW_INT 
+mov r2,#0
 mov r6,#1
 b MULT
 
@@ -121,7 +124,8 @@ ONE: @ numero 2
 mov r0,r5
 mov r1,#4
 mov r2,#2
-swi SWI_DRAW_INT
+swi SWI_DRAW_INT 
+mov r2,#0
 mov r6,#2
 b MULT
 
@@ -129,7 +133,8 @@ TWO: @ numero 3
 mov r0,r5
 mov r1,#4
 mov r2,#3
-swi SWI_DRAW_INT
+swi SWI_DRAW_INT 
+mov r2,#0
 mov r6,#3
 b MULT
 
@@ -144,7 +149,8 @@ FOUR: @ numero 4
 mov r0,r5
 mov r1,#4
 mov r2,#4
-swi SWI_DRAW_INT
+swi SWI_DRAW_INT 
+mov r2,#0
 mov r6,#4
 b MULT
 
@@ -152,7 +158,8 @@ FIVE: @ numero 5
 mov r0,r5
 mov r1,#4
 mov r2,#5
-swi SWI_DRAW_INT
+swi SWI_DRAW_INT 
+mov r2,#0
 mov r6,#5
 b MULT
 
@@ -160,7 +167,8 @@ SIX: @ numero 6
 mov r0,r5
 mov r1,#4
 mov r2,#6
-swi SWI_DRAW_INT
+swi SWI_DRAW_INT 
+mov r2,#0
 mov r6,#6
 b MULT
 
@@ -175,7 +183,8 @@ EIGHT: @ numero 7
 mov r0,r5
 mov r1,#4
 mov r2,#7
-swi SWI_DRAW_INT
+swi SWI_DRAW_INT 
+mov r2,#0
 mov r6,#7
 b MULT
 
@@ -183,7 +192,8 @@ NINE: @ numero 8
 mov r0,r5
 mov r1,#4
 mov r2,#8
-swi SWI_DRAW_INT
+swi SWI_DRAW_INT 
+mov r2,#0
 mov r6,#8
 b MULT
 
@@ -191,7 +201,8 @@ TEN: @ numero 9
 mov r0,r5
 mov r1,#4
 mov r2,#9
-swi SWI_DRAW_INT
+swi SWI_DRAW_INT 
+mov r2,#0
 mov r6,#9
 b MULT
 
@@ -213,7 +224,8 @@ THIRTEEN: @ numero 0
 mov r0,r5
 mov r1,#4
 mov r2,#0
-swi SWI_DRAW_INT
+swi SWI_DRAW_INT 
+mov r2,#0
 mov r6,#0
 b MULT
 
@@ -234,6 +246,7 @@ b operation
 
 
 operation:
+ldr r6,[r3],#-4
 cmp r2,#'+'
 beq soma
 cmp r2,#'-'
@@ -246,10 +259,10 @@ cmp r2,#'%'
 beq quoc
 
 
-soma: ldr r6,[r3]
-    ldr r7,[r3],#-4
+soma: ldr r6,[r3],#-4 @ pegar o elemento atual salvo na pilha e pular para o indice anterior
+    ldr r7,[r3] @ pega o elemento anterior ao ultimo adicionado na pilha
     mov r0,r5
-    mov r1,#4
+    mov r1,#5
     add r6,r7,r6
     mov r2,r6
     swi SWI_DRAW_INT
@@ -259,23 +272,28 @@ soma: ldr r6,[r3]
 b Armazenar
 
 
-subt: ldr r7,[r3],#-4
+subt: ldr r6,[r3],#-4 @ pegar o elemento atual salvo na pilha e pular para o indice anterior
+    ldr r7,[r3] @ pega o elemento anterior ao ultimo adicionado na pilha
     mov r0,r5
-    mov r1,#4
+    mov r1,#5
     sub r6,r7,r6
     mov r2,r6
     swi SWI_DRAW_INT
+    mov r2,#0
+    strb r2,[r3],#4   @ limpando os elementos da pilha
+    strb r2,[r3],#-4
 b Armazenar
 
 
 mult:ldr r6,[r3]
     ldr r7,[r3],#-4
-subtr:  add ,r6,r6
+subtr: add r10,r6,r6
         sub r7,r7,#1
         cmp r7,#0
         bne subtr
     mov r0,r5
     mov r1,#4
+    mov r2,r10
     mov r2,r6
     swi SWI_DRAW_INT
 b Armazenar
@@ -287,6 +305,9 @@ quoc:
 b Armazenar
 
 Clear:
+mov r5,#0
+mov r0,#0
+mov r1,#4
 swi SWI_CLEAR_DISPLAY
 mov r6,#0
 mov r7,#0
@@ -300,9 +321,9 @@ beq   start
 Armazenar:
 cmp r3,r4
 beq Erro_
-strb r6,[r3],#4 @ armazena o valor no vetor
+str r6,[r3],#4 @ armazena o valor no vetor
 mov r6,#0  @zera o valor do r6.
-mov r14,#0 @zera o contador 
+@mov r14,#0 @zera o contador 
 b Teclado
 
 Erro_: 
@@ -322,6 +343,7 @@ Erro:
     swi SWI_EXIT
 
 .data
+armaz: .asciz "[Armazenando]"
 error: .asciz "numero digitado maior que o suportado"
-error_ . asciz "pilha ja esta cheia/digite um openrando ou precione botão preto direito para sair"
+error_: .asciz "pilha ja esta cheia/digite um openrando ou precione botão preto direito para sair"
 .end
