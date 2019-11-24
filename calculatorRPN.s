@@ -61,6 +61,8 @@ Check_bt:  @ faz a checagem se o botao azul foi precionado, caso não tenha sido
 beq Check_bt_b   @ caso r0 seja igual a 0 nenhum botão azul foi precionado, chamando assim a função para checar o botao preto
 add r5,r5,#1    @contador de digito da coluna
 mov r9,r6
+
+@ teclado blue numerado de 0 a 15.
 cmp r0,#Button_00
 beq ZERO        @ numero 1
 cmp r0,#Button_01
@@ -258,7 +260,7 @@ beq rest
 cmp r2,#'%'
 beq quoc
 
-
+@ função de operação de soma.
 soma: ldr r6,[r3],#-4 @ pegar o elemento atual salvo na pilha e pular para o indice anterior
     ldr r7,[r3] @ pega o elemento anterior ao ultimo adicionado na pilha
     mov r0,r5
@@ -271,7 +273,7 @@ soma: ldr r6,[r3],#-4 @ pegar o elemento atual salvo na pilha e pular para o ind
     strb r2,[r3],#-4
 b Armazenar
 
-
+@função de operação de subtração
 subt: ldr r6,[r3],#-4 @ pegar o elemento atual salvo na pilha e pular para o indice anterior
     ldr r7,[r3] @ pega o elemento anterior ao ultimo adicionado na pilha
     mov r0,r5
@@ -280,6 +282,7 @@ subt: ldr r6,[r3],#-4 @ pegar o elemento atual salvo na pilha e pular para o ind
     mov r2,r6
     swi SWI_DRAW_INT
     mov r2,#0
+    @limpa elementos utilizados da pilha.
     strb r2,[r3],#4   @ limpando os elementos da pilha
     strb r2,[r3],#-4
 b Armazenar
