@@ -8,7 +8,7 @@ b start @pula direto para o inicio do codigo
 .equ SWI_DRAW_STRING, 0x204 @printar string no lcd
 .equ SWI_DRAW_INT, 0x205 @printar inteiro no lcd
 .equ SWI_CheckBlack, 0x202 @ checar botao esquerdo 
-.equ SWI_Led, 0x201 @ led vermelho
+.equ SWI_LED, 0x201 @ led vermelho
 .equ Button_00, 0x01 @botoes(0)
 .equ Button_01, 0x02 @botoes(1)
 .equ Button_02, 0x04 @botoes(2)
@@ -103,6 +103,7 @@ swi SWI_CheckBlack
 beq Check_bt
 cmp r0,#0x02
 beq Clear
+swi SWI_EXIT @ caso a outra tela preta for precionada o programa se encerra.
 
 @esta função pega o numero mutiplica por 10 e apos isto adiciona o ultimo numero fornecido
 MULT: mov r2,#0
@@ -225,17 +226,17 @@ b operation
 
 
 operation:
-ldr r6,[r3],#-4 @voltando um indice do vetor antes da operação
-cmp r2,#'+'
-beq soma
-cmp r2,#'-'
-beq subt
-cmp r2,#'*'
-beq mult
-cmp r2,#'/'
-beq rest
-cmp r2,#'%'
-beq quoc
+    ldr r6,[r3],#-4 @voltando um indice do vetor antes da operação
+    cmp r2,#'+'
+    beq soma
+    cmp r2,#'-'
+    beq subt
+    cmp r2,#'*'
+    beq mult
+    cmp r2,#'/'
+    beq rest
+    cmp r2,#'%'
+    beq quoc
 
 @ função de operação de soma.
 soma: ldr r6,[r3],#-4 @ pegar o elemento atual salvo na pilha e pular para o indice anterior
@@ -280,56 +281,93 @@ subtr: add r10,r10,r6 @ enquanto r7 não for igual a 0 soma r6 ao r10
 b Armazenar
 
 
-rest:
-b Armazenar
-quoc:
+rest:ldr r6,[r3],#-4 @ faz a leitura dos numeros para a operação
+    ldr r7,[r3]
+    cmp r7,#0 @ verifica se o denominador é igual a 0
+    beq value
+    mov r2,#0
+    strb r2,[r3],#4   @ limpando os elementos da pilha anteriores a operação
+    strb r2,[r3],#-4 
+    cmp r6,r7
+    blt Armazenar @tratamento no caso de r6 ser menor que r7 (r6 já é o resto neste caso)
+resto: sub r6,r6,r7
+    cmp r6,r7
+    bge resto @ enquanto numerador for maior que o denominador continua o loop
 b Armazenar
 
+
+quoc:
+ldr r6,[r3],#-4 @ faz a leitura dos numeros para a operação
+    ldr r7,[r3]
+    cmp r7,#0 @ verifica se o denominador é igual a 0
+    beq value
+    mov r2,#0
+    strb r2,[r3],#4   @ limpando os elementos da pilha anteriores a operação
+    strb r2,[r3],#-4 
+    cmp r6,r7
+    blt Armazenar @tratamento no caso de r6 ser menor que r7 (r6 já é o resto neste caso)
+resto: sub r6,r6,r7
+    add r0,#1
+    cmp r6,r7
+    bge resto @ enquanto numerador for maior que o denominador continua o loop
+    mov r6,r2
+    mov r2,#0
+b Armazenar
+
+
 Clear:
-mov r5,#0
-swi SWI_CLEAR_DISPLAY
-mov r6,#0
-mov r7,#0
-ldr r3,=array @ recebe o inicio do array
+    mov r5,#0
+    swi SWI_CLEAR_DISPLAY
+    mov r6,#0
+    mov r7,#0
+    ldr r3,=array @ recebe o inicio do array
 looping:    strb r6,[r3],#4  @ percore o vetor mudando todos os valores para 0
             cmp  r3,r4       @ enquanto o vetor nao chegar ao fim continua o looping
             bne   looping 
-beq   start
+beq start
 
 
 Armazenar:
-cmp r3,r4
-add r1,r1,#1
-mov r5,#0
-beq Erro_
-str r6,[r3],#4 @ armazena o valor no vetor
-mov r6,#0
+    cmp r3,r4
+    beq Erro_
+    add r1,r1,#1
+    mov r5,#0
+    str r6,[r3],#4 @ armazena o valor no vetor
+    mov r6,#0  @zera o valor do r6. 
 b Teclado
+
 
 @atualiza no display o estado atual da PILHA
-PILHA:mov r1,#1
+@ PILHA:mov r1,#1
+@b Teclado
 
 
-b Teclado
+Value:mov r0,#2  
+    mov r1,#5 
+    ldr r2,=value @ pointer to string
+    swi SWI_LED @ acende o led
+    swi SWI_DRAW_STRING @ draw to the LCD screen
+b start
+
 
 Erro_: 
-    mov r0,#2 @ column number
-    mov r1,#5 @ row number
+    mov r0,#2 @ numero da coluna
+    mov r1,#5 @ numero de linha
     ldr r2,=error_ @ pointer to string
     swi SWI_DRAW_STRING @ draw to the LCD screen
-    b start
+b start
 
 
 Erro:
     swi SWI_CLEAR_DISPLAY
-    mov r0,#2 @ column number
-    mov r1,#4 @ row number
+    mov r0,#2 @ numero da coluna
+    mov r1,#4 @ numero de linha
     ldr r2,=error @ pointer to string
     swi SWI_DRAW_STRING @ draw to the LCD screen
-    swi SWI_EXIT
+swi SWI_EXIT
 
 .data
-armaz: .asciz "[Armazenando]"
+value: .asciz "Erro ao realizar operação numero fornecido para o quociente nao pode ser zero"
 error: .asciz "numero digitado maior que o suportado"
-error_: .asciz "pilha ja esta cheia/digite um openrando ou precione botão preto direito para sair"
+error_: .asciz "pilha ja esta cheia digite um operandor aritmetico"
 .end
