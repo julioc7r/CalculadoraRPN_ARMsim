@@ -284,7 +284,7 @@ b Armazenar
 rest:ldr r6,[r3],#-4 @ faz a leitura dos numeros para a operação
     ldr r7,[r3]
     cmp r7,#0 @ verifica se o denominador é igual a 0
-    beq value
+    beq Value
     mov r2,#0
     strb r2,[r3],#4   @ limpando os elementos da pilha anteriores a operação
     strb r2,[r3],#-4 
@@ -300,7 +300,7 @@ quoc:
 ldr r6,[r3],#-4 @ faz a leitura dos numeros para a operação
     ldr r7,[r3]
     cmp r7,#0 @ verifica se o denominador é igual a 0
-    beq value
+    beq Value
     mov r2,#0
     strb r2,[r3],#4   @ limpando os elementos da pilha anteriores a operação
     strb r2,[r3],#-4 
