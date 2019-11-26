@@ -32,6 +32,7 @@ eoa: @indica o fim do array
 start:
 swi SWI_CLEAR_DISPLAY @ limpa a tela ao iniciar
 mov r8,#10
+mov r1,#1
 ldr r3,= array
 ldr r4,= eoa
 mov r12,#0 @
@@ -39,7 +40,7 @@ mov r9,#0
 b Teclado
 
             @##     REGISTRADORES              ##
-@ r0 -> recebe o botao apertado / e tem a função de contador de linhas
+@ r0 -> recebe o botao apertado / e tem a função de contador de colunas (usado para printar no display)
 @ r1 ->
 @ r2 -> recebe o numero/operando representado pelo botao| recebe o resultado da operacao
 @ r3 -> recebe o vetor
@@ -49,12 +50,12 @@ b Teclado
 @ r7 -> operando 2
 @ r8 -> utilizado para auxiliar na multiplicacao, ao receber um novo numero os numeros antigos sao deslocados para a direita e o ultimo digito recebe o numero digitado
 @ r9 -> variavel auxiliar ultilizada para guardar algarismos antes de alguma adição de mais numeros
-@ r10 ->
+@ r10 -> variavel auxiliar nas operaçoes de produto/quociente/modulo
 @ r11 ->
 @ r12 ->
 
 Teclado:
-mov r0,#0
+mov r0,#1
 Check_bt:  @ faz a checagem se o botao azul foi precionado, caso não tenha sido precionado chama a função para ver se o botão preto foi chamado
     swi SWI_CheckBlue   @get button press into R0
     cmp r0,#0
@@ -103,10 +104,12 @@ beq Check_bt
 cmp r0,#0x02
 beq Clear
 
-MULT:add r2,r2,r9
+@esta função pega o numero mutiplica por 10 e apos isto adiciona o ultimo numero fornecido
+MULT: mov r2,#0
+loop:add r2,r2,r9
       sub r8,r8,#1
       cmp r8,#0
-      bne MULT
+      bne loop
 add r6,r6,r2
 mov r2,#0
 mov r8,#10
@@ -114,126 +117,101 @@ b Teclado
 
 ZERO: @ numero 1
 mov r0,r5
-mov r1,#4
 mov r2,#1
 swi SWI_DRAW_INT 
-mov r2,#0
 mov r6,#1
 b MULT
 
 
 ONE: @ numero 2
 mov r0,r5
-mov r1,#4
 mov r2,#2
 swi SWI_DRAW_INT 
-mov r2,#0
 mov r6,#2
 b MULT
 
 TWO: @ numero 3
 mov r0,r5
-mov r1,#4
 mov r2,#3
 swi SWI_DRAW_INT 
-mov r2,#0
 mov r6,#3
 b MULT
 
 THREE: @ operador soma
 mov r0,r5
-mov r1,#4
 mov r2,#'+'
 swi SWI_DRAW_CHAR
 b operation
 
 FOUR: @ numero 4
 mov r0,r5
-mov r1,#4
 mov r2,#4
 swi SWI_DRAW_INT 
-mov r2,#0
 mov r6,#4
 b MULT
 
 FIVE: @ numero 5
 mov r0,r5
-mov r1,#4
 mov r2,#5
 swi SWI_DRAW_INT 
-mov r2,#0
 mov r6,#5
 b MULT
 
 SIX: @ numero 6
 mov r0,r5
-mov r1,#4
 mov r2,#6
 swi SWI_DRAW_INT 
-mov r2,#0
 mov r6,#6
 b MULT
 
 SEVEN: @ operador subtracao
 mov r0,r5
-mov r1,#4
 mov r2,#'-'
 swi SWI_DRAW_CHAR
 b operation
 
 EIGHT: @ numero 7
 mov r0,r5
-mov r1,#4
 mov r2,#7
 swi SWI_DRAW_INT 
-mov r2,#0
 mov r6,#7
 b MULT
 
 NINE: @ numero 8
 mov r0,r5
-mov r1,#4
 mov r2,#8
 swi SWI_DRAW_INT 
-mov r2,#0
 mov r6,#8
 b MULT
 
 TEN: @ numero 9
 mov r0,r5
-mov r1,#4
 mov r2,#9
 swi SWI_DRAW_INT 
-mov r2,#0
 mov r6,#9
 b MULT
 
 ELEVEN: @ operador multiplicacao
 mov r0,r5
-mov r1,#4
 mov r2,#'*'
 swi SWI_DRAW_CHAR
 b operation
 
 TWELVE: @ operador igual
 mov r0,r5
-mov r1,#4
-mov r2,#'='
+mov r2,#','
 swi SWI_DRAW_CHAR
 b Armazenar
 
 THIRTEEN: @ numero 0
 mov r0,r5
-mov r1,#4
 mov r2,#0
 swi SWI_DRAW_INT 
-mov r2,#0
 mov r6,#0
 b MULT
 
 FOURTEEN: @ operador resto de divisao
 mov r0,r5
-mov r1,#4
 mov r2,#'%'
 swi SWI_DRAW_CHAR
 b operation
@@ -241,14 +219,13 @@ b operation
  
 FIFTEEN: @ operador divisao
 mov r0,r5
-mov r1,#4
 mov r2,#'/'
 swi SWI_DRAW_CHAR
 b operation
 
 
 operation:
-ldr r6,[r3],#-4
+ldr r6,[r3],#-4 @voltando um indice do vetor antes da operação
 cmp r2,#'+'
 beq soma
 cmp r2,#'-'
@@ -263,8 +240,7 @@ beq quoc
 @ função de operação de soma.
 soma: ldr r6,[r3],#-4 @ pegar o elemento atual salvo na pilha e pular para o indice anterior
     ldr r7,[r3] @ pega o elemento anterior ao ultimo adicionado na pilha
-    mov r0,r5
-    mov r1,#5
+    mov r0,#1
     add r6,r7,r6
     mov r2,r6
     swi SWI_DRAW_INT
@@ -276,8 +252,7 @@ b Armazenar
 @função de operação de subtração
 subt: ldr r6,[r3],#-4 @ pegar o elemento atual salvo na pilha e pular para o indice anterior
     ldr r7,[r3] @ pega o elemento anterior ao ultimo adicionado na pilha
-    mov r0,r5
-    mov r1,#5
+    mov r0,#1
     sub r6,r7,r6
     mov r2,r6
     swi SWI_DRAW_INT
@@ -288,17 +263,20 @@ subt: ldr r6,[r3],#-4 @ pegar o elemento atual salvo na pilha e pular para o ind
 b Armazenar
 
 
-mult:ldr r6,[r3]
-    ldr r7,[r3],#-4
-subtr: add r10,r6,r6
-        sub r7,r7,#1
+mult:ldr r6,[r3],#-4 @ faz a leitura dos numeros para a operação
+    ldr r7,[r3]
+    mov r10,#0     @o registrador r10 vai receber o resultado da multiplicação
+subtr: add r10,r10,r6 @ enquanto r7 não for igual a 0 soma r6 ao r10
+        sub r7,r7,#1  @ ou seja sera somada N vezes o r6 (onde N e definido pelo r7)
         cmp r7,#0
         bne subtr
+    mov r6,r10
     mov r0,r5
-    mov r1,#4
     mov r2,r10
-    mov r2,r6
     swi SWI_DRAW_INT
+    mov r2,#0
+    strb r2,[r3],#4   @ limpando os elementos da pilha anteriores a operação
+    strb r2,[r3],#-4
 b Armazenar
 
 
@@ -309,8 +287,6 @@ b Armazenar
 
 Clear:
 mov r5,#0
-mov r0,#0
-mov r1,#4
 swi SWI_CLEAR_DISPLAY
 mov r6,#0
 mov r7,#0
@@ -323,10 +299,17 @@ beq   start
 
 Armazenar:
 cmp r3,r4
+add r1,r1,#1
+mov r5,#0
 beq Erro_
 str r6,[r3],#4 @ armazena o valor no vetor
-mov r6,#0  @zera o valor do r6.
-@mov r14,#0 @zera o contador 
+mov r10,r1
+b PILHA
+
+@atualiza no display o estado atual da PILHA
+PILHA:mov r1,#1
+
+
 b Teclado
 
 Erro_: 
