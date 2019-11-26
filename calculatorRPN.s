@@ -306,10 +306,10 @@ ldr r6,[r3],#-4 @ faz a leitura dos numeros para a operação
     strb r2,[r3],#-4 
     cmp r6,r7
     blt Armazenar @tratamento no caso de r6 ser menor que r7 (r6 já é o resto neste caso)
-resto: sub r6,r6,r7
-    add r0,#1
+rest: sub r6,r6,r7
+    add r2,r2,#1
     cmp r6,r7
-    bge resto @ enquanto numerador for maior que o denominador continua o loop
+    bge rest @ enquanto numerador for maior que o denominador continua o loop
     mov r6,r2
     mov r2,#0
 b Armazenar
