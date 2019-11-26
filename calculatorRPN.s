@@ -303,8 +303,8 @@ add r1,r1,#1
 mov r5,#0
 beq Erro_
 str r6,[r3],#4 @ armazena o valor no vetor
-mov r10,r1
-b PILHA
+mov r6,#0
+b Teclado
 
 @atualiza no display o estado atual da PILHA
 PILHA:mov r1,#1
