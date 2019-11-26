@@ -55,7 +55,7 @@ b Teclado
 @ r12 ->
 
 Teclado:
-mov r0,#1
+mov r0,#0
 Check_bt:  @ faz a checagem se o botao azul foi precionado, caso não tenha sido precionado chama a função para ver se o botão preto foi chamado
     swi SWI_CheckBlue   @get button press into R0
     cmp r0,#0
