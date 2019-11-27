@@ -329,7 +329,7 @@ beq start
 
 Armazenar:
     cmp r3,r4
-    beq Erro_
+    beq Erro
     add r1,r1,#1
     mov r5,#0
     str r6,[r3],#4 @ armazena o valor no vetor
@@ -350,7 +350,7 @@ Value:mov r0,#2
 b start
 
 
-Erro_: 
+Erro: 
     mov r0,#2 @ numero da coluna
     mov r1,#5 @ numero de linha
     ldr r2,=error_ @ pointer to string
@@ -358,16 +358,7 @@ Erro_:
 b start
 
 
-Erro:
-    swi SWI_CLEAR_DISPLAY
-    mov r0,#2 @ numero da coluna
-    mov r1,#4 @ numero de linha
-    ldr r2,=error @ pointer to string
-    swi SWI_DRAW_STRING @ draw to the LCD screen
-swi SWI_EXIT
-
 .data
 value: .asciz "Erro ao realizar operação numero fornecido para o quociente nao pode ser zero"
-error: .asciz "numero digitado maior que o suportado"
 error_: .asciz "pilha ja esta cheia digite um operandor aritmetico"
 .end
