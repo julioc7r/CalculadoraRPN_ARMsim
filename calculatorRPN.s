@@ -32,13 +32,11 @@ eoa: @indica o fim do array
 start:
 swi SWI_CLEAR_DISPLAY @ limpa a tela ao iniciar
 mov r8,#10
-mov r1,#1
 ldr r3,= array
 ldr r4,= eoa
-mov r12,#0 @
 mov r9,#0
+mov r1,#1
 b Teclado
-
             @##     REGISTRADORES              ##
 @ r0 -> recebe o botao apertado / e tem a função de contador de colunas (usado para printar no display)
 @ r1 ->
@@ -50,7 +48,7 @@ b Teclado
 @ r7 -> operando 2
 @ r8 -> utilizado para auxiliar na multiplicacao, ao receber um novo numero os numeros antigos sao deslocados para a direita e o ultimo digito recebe o numero digitado
 @ r9 -> variavel auxiliar ultilizada para guardar algarismos antes de alguma adição de mais numeros
-@ r10 -> variavel auxiliar nas operaçoes de produto/quociente/modulo
+@ r10 -> 
 @ r11 ->
 @ r12 ->
 
@@ -266,23 +264,23 @@ b Armazenar
 
 mult:ldr r6,[r3],#-4 @ faz a leitura dos numeros para a operação
     ldr r7,[r3]
-    mov r10,#0     @o registrador r10 vai receber o resultado da multiplicação
-subtr: add r10,r10,r6 @ enquanto r7 não for igual a 0 soma r6 ao r10
+    mov r2,#0
+    strb r2,[r3],#4   @ limpando os elementos da pilha anteriores a operação
+    mov r0,#0     @o registrador r10 vai receber o resultado da multiplicação
+    strb r2,[r3],#-4
+subtr: add r0,r0,r6 @ enquanto r7 não for igual a 0 soma r6 ao r10
         sub r7,r7,#1  @ ou seja sera somada N vezes o r6 (onde N e definido pelo r7)
         cmp r7,#0
         bne subtr
-    mov r6,r10
-    mov r0,r5
-    mov r2,r10
+    mov r6,r0
+    mov r0,#1
+    mov r2,r6
     swi SWI_DRAW_INT
-    mov r2,#0
-    strb r2,[r3],#4   @ limpando os elementos da pilha anteriores a operação
-    strb r2,[r3],#-4
 b Armazenar
 
 
-rest:ldr r6,[r3],#-4 @ faz a leitura dos numeros para a operação
-    ldr r7,[r3]
+rest:ldr r7,[r3],#-4 @ faz a leitura dos numeros para a operação
+    ldr r6,[r3]
     cmp r7,#0 @ verifica se o denominador é igual a 0
     beq Value
     mov r2,#0
@@ -293,12 +291,14 @@ rest:ldr r6,[r3],#-4 @ faz a leitura dos numeros para a operação
 resto: sub r6,r6,r7
     cmp r6,r7
     bge resto @ enquanto numerador for maior que o denominador continua o loop
+    mov r2,r6
+    swi SWI_DRAW_INT
 b Armazenar
 
 
 quoc:
-ldr r6,[r3],#-4 @ faz a leitura dos numeros para a operação
-    ldr r7,[r3]
+ldr r7,[r3],#-4 @ faz a leitura dos numeros para a operação
+    ldr r6,[r3]
     cmp r7,#0 @ verifica se o denominador é igual a 0
     beq Value
     mov r2,#0
@@ -311,7 +311,7 @@ divisao: sub r6,r6,r7
     cmp r6,r7
     bge divisao @ enquanto numerador for maior que o denominador continua o loop
     mov r6,r2
-    mov r2,#0
+    swi SWI_DRAW_INT
 b Armazenar
 
 
@@ -337,26 +337,23 @@ Armazenar:
 b Teclado
 
 
-@atualiza no display o estado atual da PILHA
-@ PILHA:mov r1,#1
-@b Teclado
-
-
 Value:mov r0,#2  
     mov r1,#5 
-    ldr r2,=value @ pointer to string
+    ldr r2,=value 
     swi SWI_LED @ acende o led
-    swi SWI_DRAW_STRING @ draw to the LCD screen
+    swi SWI_DRAW_STRING 
+    swi SWI_LED
 b start
 
 
 Erro: 
     mov r0,#2 @ numero da coluna
     mov r1,#5 @ numero de linha
-    ldr r2,=error_ @ pointer to string
-    swi SWI_DRAW_STRING @ draw to the LCD screen
+    mov r6,#0
+    ldr r2,=error_ 
+    swi SWI_DRAW_STRING 
+    @ldr r2,[r3],#-4
 b start
-
 
 .data
 value: .asciz "Erro ao realizar operação numero fornecido para o quociente nao pode ser zero"
