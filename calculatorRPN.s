@@ -328,12 +328,27 @@ beq start
 
 
 Armazenar:
-    cmp r3,r4
-    beq Erro
-    add r1,r1,#1
-    mov r5,#0
+    cmp r3,r4 @ verifica se esta no final do vetor
+    beq TratErro
     str r6,[r3],#4 @ armazena o valor no vetor
-    mov r6,#0  @zera o valor do r6. 
+    mov r6,r3  @zera o valor do r6.
+    ldr r3, = array 
+    mov r0,#1
+    mov r1,#2
+    swi SWI_CLEAR_DISPLAY
+    ldr r2,=pilha
+    swi SWI_DRAW_STRING
+    mov r1,#8
+PILHA:ldr r2,[r3],#4
+    swi SWI_DRAW_INT
+    sub r1,r1,#1
+    cmp r3,r6
+    bne PILHA
+cmp r3,r4 @ verifica se esta no final do vetor
+beq TratErro @ avisa que a pilha esta cheia apos a operação.
+mov r5,#0
+mov r6,#0
+mov r1,#1
 b Teclado
 
 
@@ -342,20 +357,21 @@ Value:mov r0,#2
     ldr r2,=value 
     swi SWI_LED @ acende o led
     swi SWI_DRAW_STRING 
-    swi SWI_LED
+    swi SWI_LED @ apaga led
 b start
 
 
-Erro: 
-    mov r0,#2 @ numero da coluna
+TratErro: 
+    mov r0,#5 @ numero da coluna
     mov r1,#5 @ numero de linha
-    mov r6,#0
-    ldr r2,=error_ 
-    swi SWI_DRAW_STRING 
-    @ldr r2,[r3],#-4
-b start
+    ldr r2,=error
+    swi SWI_DRAW_STRING
+    mov r6,#0 
+    mov r0,#0
+b Teclado
 
 .data
+pilha: .asciz  "PILHA"
 value: .asciz "Erro ao realizar operação numero fornecido para o quociente nao pode ser zero"
-error_: .asciz "pilha ja esta cheia digite um operandor aritmetico"
+error: .asciz "pilha ja esta cheia digite um operandor aritmetico"
 .end
