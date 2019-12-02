@@ -1,13 +1,13 @@
 .text
 b start @pula direto para o inicio do codigo
-.equ SWI_CheckBlue, 0x203 @faz a checagem se algum botao azul foi precionado
+.equ SWI_CheckBlue, 0x203 @verificar se algum botao foi precionado
 .equ SWI_CLEAR_DISPLAY,0x206 @limpar lcd
-.equ SWI_DRAW_CHAR, 0x207 @printar um char
+.equ SWI_DRAW_CHAR, 0x207 @printar um char no lcd
 .equ SWI_CLEAR_LINE, 0x208 @limpar linha no lcd
-.equ SWI_EXIT, 0x11 @finalizacao do programa
+.equ SWI_EXIT, 0x11 @finaliza o programa
 .equ SWI_DRAW_STRING, 0x204 @printar string no lcd
 .equ SWI_DRAW_INT, 0x205 @printar inteiro no lcd
-.equ SWI_CheckBlack, 0x202 @ checar botao esquerdo 
+.equ SWI_CheckBlack, 0x202 @ verifica se o botão preto foi precionado
 .equ SWI_LED, 0x201 @ led vermelho
 .equ Button_00, 0x01 @botoes(0)
 .equ Button_01, 0x02 @botoes(1)
@@ -38,14 +38,14 @@ mov r9,#0
 mov r1,#1
 b Teclado
             @##     REGISTRADORES              ##
-@ r0 -> recebe o botao apertado / e tem a função de contador de colunas (usado para printar no display)
-@ r1 ->
+@ r0 -> recebe o botao apertado , e tem a função de contador de colunas (usado para printar no display)
+@ r1 -> contador de linha , tem como objetivo apontar em qual linha serão realizado as funções swi
 @ r2 -> recebe o numero/operando representado pelo botao| recebe o resultado da operacao
-@ r3 -> recebe o vetor
+@ r3 -> recebe o inicio do vetor (que armazena a pilha de operando)
 @ r4 -> final do vetor
-@ r5 -> contador
-@ r6 -> operando 1
-@ r7 -> operando 2
+@ r5 -> contador da coluna atual do operando
+@ r6 -> operando 1    |Ultilizados nas operaçoes 
+@ r7 -> operando 2    |
 @ r8 -> utilizado para auxiliar na multiplicacao, ao receber um novo numero os numeros antigos sao deslocados para a direita e o ultimo digito recebe o numero digitado
 @ r9 -> variavel auxiliar ultilizada para guardar algarismos antes de alguma adição de mais numeros
 @ r10 -> 
