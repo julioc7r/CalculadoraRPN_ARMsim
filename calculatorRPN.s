@@ -355,10 +355,13 @@ b Teclado
 Value:mov r0,#2  
     mov r1,#5 
     ldr r2,=value 
+    mov r6,#0
     swi SWI_LED @ acende o led
-    swi SWI_DRAW_STRING 
+    swi SWI_DRAW_STRING
+    ldr r2,[r3],#4 @ atualiza o indice novamente para aguardar uma nova operação
+    ldr r2,[r3],#4   
     swi SWI_LED @ apaga led
-b start
+b Teclado
 
 
 TratErro: 
