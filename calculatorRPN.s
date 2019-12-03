@@ -313,7 +313,7 @@ divisao: sub r6,r6,r7
     swi SWI_DRAW_INT
 b Armazenar
 
-trat :mov r6,#0 @ em caso de r6 for menor que r7 a divisao sera 0.
+trat: mov r6,#0 @ em caso de r6 for menor que r7 a divisao sera 0.
 b Armazenar
 
 Clear:
