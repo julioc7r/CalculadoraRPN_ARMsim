@@ -302,7 +302,9 @@ ldr r7,[r3],#-4 @ faz a leitura dos numeros para a operação
     beq Value
     mov r2,#0
     strb r2,[r3],#4   @ limpando os elementos da pilha anteriores a operação
-    strb r2,[r3],#-4 
+    strb r2,[r3],#-4
+    cmp r6,r7
+    blt trat
 divisao: sub r6,r6,r7
     add r2,r2,#1
     cmp r6,r7
@@ -311,6 +313,8 @@ divisao: sub r6,r6,r7
     swi SWI_DRAW_INT
 b Armazenar
 
+trat :mov r6,#0 @ em caso de r6 for menor que r7 a divisao sera 0.
+b Armazenar
 
 Clear:
     mov r5,#0
