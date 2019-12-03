@@ -1,3 +1,7 @@
+@projeto final de arquitetura de computadores-2019/2 Calculadora rpn (polonesa inversa)
+@Alunos de Bsi turma s73
+@ Lucas Matheus dos Santo 2028492
+@ Júlio Cezar Rogacheski 2070405
 .text
 b start @pula direto para o inicio do codigo
 .equ SWI_CheckBlue, 0x203 @verificar se algum botao foi precionado
