@@ -103,7 +103,7 @@ Check_bt_b:
 swi SWI_CheckBlack
     cmp r0,#0
 beq Check_bt
-cmp r0,#0x02
+cmp r0,#0x01
 beq Clear
 swi SWI_EXIT @ caso a outra tela preta for precionada o programa se encerra.
 
