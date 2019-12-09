@@ -9,7 +9,6 @@
 | 1     | 2 | 3 | + |
 | 4     | 5 | 6 | - |
 | 7     | 8 | 9 | * |
-| enter | 0 | / | % |
-
+| enter | 0 | % | / |
 
 *Trabalho final da materia de Arquitetura e Organização de computadores UTFPR-2019/2.*
