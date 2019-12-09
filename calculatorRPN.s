@@ -7,11 +7,11 @@
 b start @pula direto para o inicio do programa
 .equ SWI_CheckBlue, 0x203 @verificar se algum botao foi pressionado
 .equ SWI_CLEAR_DISPLAY,0x206 @limpar lcd
-.equ SWI_DRAW_CHAR, 0x207 @printar um char no lcd
+.equ SWI_DRAW_CHAR, 0x207 @imprime um char no lcd
 .equ SWI_CLEAR_LINE, 0x208 @limpar linha lcd
 .equ SWI_EXIT, 0x11 @finaliza o programa
-.equ SWI_DRAW_STRING, 0x204 @printar string no lcd
-.equ SWI_DRAW_INT, 0x205 @printar inteiro no lcd
+.equ SWI_DRAW_STRING, 0x204 @imprime string no lcd
+.equ SWI_DRAW_INT, 0x205 @imprime inteiro no lcd
 .equ SWI_CheckBlack, 0x202 @ verifica se o botão preto foi pressionado
 .equ SWI_LED, 0x201 @ led vermelho
 .equ Button_00, 0x01 @botoes(0)
@@ -44,8 +44,8 @@ mov r1,#1
 b Teclado
 
 
-            @##     REGISTRADORES              ##
-@ r0 -> recebe o botao apertado , e tem a função de contador de colunas (usado para printar no display)
+            @##     REGISTRADORES ULTILIZADOS          ##
+@ r0 -> recebe o botao apertado , e tem a função de contador de colunas (usado para imprimer no display)
 @ r1 -> contador de linha , tem como objetivo apontar em qual linha serão realizado as funções swi
 @ r2 -> recebe o numero/operando representado pelo botao| recebe o resultado da operacao
 @ r3 -> recebe o inicio do vetor (que armazena a pilha de operando)
@@ -55,9 +55,7 @@ b Teclado
 @ r7 -> operando 2    |
 @ r8 -> utilizado para auxiliar na multiplicacao, ao receber um novo numero os numeros antigos sao deslocados para a direita e o ultimo digito recebe o numero digitado
 @ r9 -> variavel auxiliar utilizada para guardar algarismos antes de alguma adição de mais numeros
-@ r10 -> 
-@ r11 ->
-@ r12 ->
+
 
 
 Teclado:
@@ -107,7 +105,7 @@ beq FIFTEEN     @ divisao
 Check_bt_b: 
 swi SWI_CheckBlack
     cmp r0,#0
-beq Check_bt
+beq Check_bt @ caso botão preto não for precionado volta a verificar botão azul
 cmp r0,#0x01
 beq Clear
 swi SWI_EXIT @ caso o botaõ preto direito for pressionado o programa se encerra.
@@ -120,14 +118,14 @@ loop:add r2,r2,r9 @ loop tem a função de multiplicar o operando por 10
       bne loop
 add r6,r6,r2 @ ultimo numero digitado é adicionado 
 mov r2,#0    
-mov r8,#10   @ atribui valor 10 para que seja possivel realizar a proxima adiçao de numero caso nescessario
+mov r8,#10   @ atribui valor 10 para que seja possivel realizar a proxima adiçao de numero caso necessario
 b Teclado
 
 
 ZERO: @ numero 1
 mov r0,r5
 mov r2,#1
-swi SWI_DRAW_INT 
+swi SWI_DRAW_INT @ imprime o numero contido no r2
 mov r6,#1
 b MULT
 
@@ -135,41 +133,41 @@ b MULT
 ONE: @ numero 2
 mov r0,r5
 mov r2,#2
-swi SWI_DRAW_INT 
+swi SWI_DRAW_INT @ imprime o numero contido no r2 
 mov r6,#2
 b MULT
 
 TWO: @ numero 3
 mov r0,r5
 mov r2,#3
-swi SWI_DRAW_INT 
+swi SWI_DRAW_INT @ imprime o numero contido no r2 
 mov r6,#3
 b MULT
 
 THREE: @ operador soma
 mov r0,r5
 mov r2,#'+'
-swi SWI_DRAW_CHAR
-b operation
+swi SWI_DRAW_CHAR @ 
+b Operation
 
 FOUR: @ numero 4
 mov r0,r5
 mov r2,#4
-swi SWI_DRAW_INT 
+swi SWI_DRAW_INT @ imprime o numero contido no r2 
 mov r6,#4
 b MULT
 
 FIVE: @ numero 5
 mov r0,r5
 mov r2,#5
-swi SWI_DRAW_INT 
+swi SWI_DRAW_INT @ imprime o numero contido no r2 
 mov r6,#5
 b MULT
 
 SIX: @ numero 6
 mov r0,r5
 mov r2,#6
-swi SWI_DRAW_INT 
+swi SWI_DRAW_INT @ imprime o numero contido no r2 
 mov r6,#6
 b MULT
 
@@ -177,26 +175,26 @@ SEVEN: @ operador subtracao
 mov r0,r5
 mov r2,#'-'
 swi SWI_DRAW_CHAR
-b operation
+b Operation
 
 EIGHT: @ numero 7
 mov r0,r5
 mov r2,#7
-swi SWI_DRAW_INT 
+swi SWI_DRAW_INT @ imprime o numero contido no r2 
 mov r6,#7
 b MULT
 
 NINE: @ numero 8
 mov r0,r5
 mov r2,#8
-swi SWI_DRAW_INT 
+swi SWI_DRAW_INT @ imprime o numero contido no r2 
 mov r6,#8
 b MULT
 
 TEN: @ numero 9
 mov r0,r5
 mov r2,#9
-swi SWI_DRAW_INT 
+swi SWI_DRAW_INT @ imprime o numero contido no r2 
 mov r6,#9
 b MULT
 
@@ -204,7 +202,7 @@ ELEVEN: @ operador multiplicacao
 mov r0,r5
 mov r2,#'*'
 swi SWI_DRAW_CHAR
-b operation
+b Operation
 
 TWELVE: @ operador igual
 mov r0,r5
@@ -215,7 +213,7 @@ b Armazenar
 THIRTEEN: @ numero 0
 mov r0,r5
 mov r2,#0
-swi SWI_DRAW_INT 
+swi SWI_DRAW_INT @ imprime o numero contido no r2 
 mov r6,#0
 b MULT
 
@@ -223,17 +221,23 @@ FOURTEEN: @ operador resto de divisao
 mov r0,r5
 mov r2,#'%'
 swi SWI_DRAW_CHAR
-b operation
+b Operation
 
  
 FIFTEEN: @ operador divisao
 mov r0,r5
 mov r2,#'/'
 swi SWI_DRAW_CHAR
-b operation
+b Operation
 
 @ Em caso de operador ser digitado, verifica-se qual operação deve ser realizada e faz sua chamada
-operation:
+Operation:
+
+    ldr r6,= array
+    add r6,r6,#7
+    cmp r3,r6 
+    blt Erronum
+
     ldr r6,[r3],#-4 @voltando um indice do vetor antes da operação (ao armazenar um numero o indice avança entao para realizar a leitura realizamos esta alteração)
     cmp r2,#'+'
     beq soma
@@ -249,7 +253,7 @@ operation:
 @ realizada a soma dos valores no topo da pilha
 soma: ldr r6,[r3],#-4 @ pegar o elemento atual salvo na pilha e pular para o indice anterior
     ldr r7,[r3] @ pega o elemento anterior ao ultimo adicionado na pilha
-    mov r0,#1
+    mov r2,#0
     add r6,r7,r6 @ realiza a soma dos operandos
     strb r2,[r3],#4   @ limpando os elementos da pilha
     strb r2,[r3],#-4
@@ -258,7 +262,7 @@ b Armazenar
 @ realizada a subtraçao dos valores no topo da pilha
 subt: ldr r6,[r3],#-4 @ pegar o elemento atual salvo na pilha e pular para o indice anterior
     ldr r7,[r3] @ pega o elemento anterior ao ultimo adicionado na pilha
-    mov r0,#1
+    mov r2,#0
     sub r6,r7,r6 @ realiza a subtraçao dos operandos
     @limpa elementos utilizados da pilha.
     strb r2,[r3],#4   @ limpando os elementos da pilha
@@ -310,7 +314,7 @@ divisao: sub r6,r6,r7
     cmp r6,r7
     bge divisao @ enquanto numerador for maior que o denominador continua o loop
     mov r6,r2
-    swi SWI_DRAW_INT
+    swi SWI_DRAW_INT @ imprime o numero contido no r2
 b Armazenar
 
 trat: mov r6,#0 @ em caso de r6 for menor que r7 a divisao sera 0.
@@ -341,27 +345,26 @@ Armazenar:
     swi SWI_DRAW_STRING
     mov r1,#8
 PILHA:ldr r2,[r3],#4
-    swi SWI_DRAW_INT
+    swi SWI_DRAW_INT @ imprime o numero contido no r2
     sub r1,r1,#1
     cmp r3,r6
     bne PILHA
 cmp r3,r4 @ verifica se esta no final do vetor
 beq TratErro @ avisa que a pilha esta cheia apos a operação.
 mov r5,#0
-mov r6,#0
-mov r1,#1
+mov r6,#0 @ zera variavel de com valor digitado e variavel da coluna
+mov r1,#1 @ indicador da linha.
 b Teclado
 
 @ Em caso do denominador igual a zero, operação não e realizada e esta função e chamada
-Value:mov r0,#2  
-    mov r1,#5 
+Value:mov r0,#1  
+    mov r1,#9 
     ldr r2,=value 
     mov r6,#0
-    mov r1,#1
     swi SWI_LED @ acende o led
     swi SWI_DRAW_STRING
     add r1,r1,#1
-    ldr r2,=valuec
+    ldr r2,=valuec @ imprime mensagem de erro 
     mov R0,#0 
     swi SWI_DRAW_STRING
     ldr r2,[r3],#4 @ atualiza o indice novamente para aguardar uma nova operação (os 2 operandos continuam armazenados, pois não foram utilizados)
@@ -374,18 +377,38 @@ b Teclado
 @ Aviso de pilha cheia.
 TratErro: 
     mov r0,#5 @ numero da coluna
-    mov r1,#5 @ numero de linha
+    mov r1,#9 @ numero de linha
     ldr r2,=error
+    swi SWI_DRAW_STRING
+    add r1,r1,#1
+    ldr r2,=erro_
     swi SWI_DRAW_STRING
     mov r6,#0 @caso seja digitado algum valor no r6 sera descartado 
     mov r0,#0 
     mov r1,#1
 b Teclado
 
+Erronum: @ mensagem de erro ao tentar realizar operação com apenas um operando
+    mov r0,#5 @ numero da coluna
+    mov r1,#9 @ numero de linha
+    ldr r2,= num
+    swi SWI_DRAW_STRING
+    add r1,r1,#1
+    ldr r2,= num_
+    swi SWI_DRAW_STRING
+    mov r6,#0 @caso seja digitado algum valor no r6 sera descartado 
+    mov r0,#0 
+    mov r1,#1
+b Teclado
+
+
 @ string utilizadas no codigo
 .data
+num: .asciz  "necessario 2 operandos"
+num_: .asciz "digite mais um numero"
 pilha: .asciz  "PILHA"
-value: .asciz "Erro ao realizar operacao denominador"
-valuec: .asciz "nao pode ser 0, digite outra operacao"
-error: .asciz "pilha ja esta cheia digite um operandor aritmetico"
+value: .asciz "Erro denominador nao pode ser 0"
+valuec: .asciz "digite outra operacao ou numero"
+error: .asciz "pilha ja esta cheia "
+erro_: .asciz "digite um operador aritmetico!"
 .end
