@@ -147,7 +147,7 @@ b MULT
 THREE: @ operador soma
 mov r0,r5
 mov r2,#'+'
-swi SWI_DRAW_CHAR @ 
+swi SWI_DRAW_CHAR @ imprime o char contindo no r2
 b Operation
 
 FOUR: @ numero 4
@@ -174,7 +174,7 @@ b MULT
 SEVEN: @ operador subtracao
 mov r0,r5
 mov r2,#'-'
-swi SWI_DRAW_CHAR
+swi SWI_DRAW_CHAR @ imprime o char contindo no r2
 b Operation
 
 EIGHT: @ numero 7
@@ -201,13 +201,13 @@ b MULT
 ELEVEN: @ operador multiplicacao
 mov r0,r5
 mov r2,#'*'
-swi SWI_DRAW_CHAR
+swi SWI_DRAW_CHAR @ imprime o char contindo no r2
 b Operation
 
 TWELVE: @ operador igual
 mov r0,r5
 mov r2,#','
-swi SWI_DRAW_CHAR
+swi SWI_DRAW_CHAR @ imprime o char contindo no r2
 b Armazenar
 
 THIRTEEN: @ numero 0
@@ -220,24 +220,25 @@ b MULT
 FOURTEEN: @ operador resto de divisao
 mov r0,r5
 mov r2,#'%'
-swi SWI_DRAW_CHAR
+swi SWI_DRAW_CHAR @ imprime o char contindo no r2
 b Operation
 
  
 FIFTEEN: @ operador divisao
 mov r0,r5
 mov r2,#'/'
-swi SWI_DRAW_CHAR
+swi SWI_DRAW_CHAR  @ imprime o char contindo no r2
 b Operation
 
 @ Em caso de operador ser digitado, verifica-se qual operação deve ser realizada e faz sua chamada
 Operation:
-
+    @ faz a verificação se a pilha contem no minimo 2 elementos para realizar a operação
     ldr r6,= array
-    add r6,r6,#7
-    cmp r3,r6 
+    add r6,r6,#7 
+    cmp r3,r6 @ se r3 for menor que r6 , então a pilha não possui 2 numeros ainda.
     blt Erronum
-
+    
+    @ chamada do desvio corespondente a operação
     ldr r6,[r3],#-4 @voltando um indice do vetor antes da operação (ao armazenar um numero o indice avança entao para realizar a leitura realizamos esta alteração)
     cmp r2,#'+'
     beq soma
@@ -246,7 +247,7 @@ Operation:
     cmp r2,#'*'
     beq mult
     cmp r2,#'/'
-    beq rest
+    beq rest 
     cmp r2,#'%'
     beq quoc
 
@@ -255,7 +256,7 @@ soma: ldr r6,[r3],#-4 @ pegar o elemento atual salvo na pilha e pular para o ind
     ldr r7,[r3] @ pega o elemento anterior ao ultimo adicionado na pilha
     mov r2,#0
     add r6,r7,r6 @ realiza a soma dos operandos
-    strb r2,[r3],#4   @ limpando os elementos da pilha
+    strb r2,[r3],#4   @ limpando os elementos do topo da pilha
     strb r2,[r3],#-4
 b Armazenar
 
@@ -273,15 +274,16 @@ b Armazenar
 mult:ldr r6,[r3],#-4 @ faz a leitura dos numeros para a operação
     ldr r7,[r3]
     mov r2,#0
-    strb r2,[r3],#4   @ limpando os elementos da pilha anteriores a operação
-    mov r0,#0     @o registrador r10 vai receber o resultado da multiplicação
+    strb r2,[r3],#4   @ limpando os elementos no topo da pilha
+    mov r0,#0     @o registrador r0 vai receber o resultado da multiplicação
     strb r2,[r3],#-4
-subtr: add r0,r0,r6 @ enquanto r7 não for igual a 0 soma r6 ao r10
+subtr: add r0,r0,r6 @ enquanto r7 não for igual a 0 soma r6 ao r0
         sub r7,r7,#1  @ ou seja sera somada N vezes o r6 (onde N e definido pelo r7)
         cmp r7,#0
         bne subtr
     mov r6,r0
 b Armazenar
+
 
 @ realizada o modulo dos valores no topo da pilha
 rest:ldr r7,[r3],#-4 @ faz a leitura dos numeros para a operação
@@ -297,6 +299,7 @@ resto: sub r6,r6,r7
     cmp r6,r7
     bge resto @ enquanto numerador for maior que o denominador continua o loop
 b Armazenar
+
 
 @ realizada a divisão dos valores no topo da pilha
 quoc:
@@ -317,8 +320,10 @@ divisao: sub r6,r6,r7
     swi SWI_DRAW_INT @ imprime o numero contido no r2
 b Armazenar
 
+
 trat: mov r6,#0 @ em caso de r6 for menor que r7 a divisao sera 0.
 b Armazenar
+
 
 Clear:
     mov r5,#0
@@ -331,23 +336,26 @@ looping:    strb r6,[r3],#4  @ percore o vetor mudando todos os valores para 0
             bne   looping 
 beq start
 
+
 @ Armazena na pilha de valores o operando fornececido ao pressionar ENTER(,) 
+@Decidimos por limpar a tela e imprimir todos os elementos da pilha repetidas vezes para remover o delay existente ao limpar apenas as linhas alteradas
 Armazenar:
     cmp r3,r4 @ verifica se esta no final do vetor
     beq TratErro
     str r6,[r3],#4 @ armazena o valor no vetor
-    mov r6,r3  @zera o valor do r6.
+    mov r6,r3  @r6 recebe o endereço atual da pilha.
     ldr r3, = array 
-    mov r0,#1
+    @ seta os valores da linha e da coluna para imprimir uma mensagem.
+    mov r0,#1  
     mov r1,#2
     swi SWI_CLEAR_DISPLAY
     ldr r2,=pilha
     swi SWI_DRAW_STRING
-    mov r1,#8
-PILHA:ldr r2,[r3],#4
+    mov r1,#8 @seta o valor da coluna a cada numero impresso subtrai 1 para printar o valor uma linha acima
+PILHA:ldr r2,[r3],#4  @percorre a pilha até o ultimo adicionado printando os valores
     swi SWI_DRAW_INT @ imprime o numero contido no r2
     sub r1,r1,#1
-    cmp r3,r6
+    cmp r3,r6 @percore do inicio até o endereço atual da pilha.
     bne PILHA
 cmp r3,r4 @ verifica se esta no final do vetor
 beq TratErro @ avisa que a pilha esta cheia apos a operação.
